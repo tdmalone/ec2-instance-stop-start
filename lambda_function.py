@@ -9,16 +9,21 @@ https://aws.amazon.com/premiumsupport/knowledge-center/start-stop-lambda-cloudwa
 import boto3
 
 region = 'ap-southeast-2'
-instances = ['i-0155bb8e6d7dddf46']
+action = 'stop' # 'start' or 'stop'
+instances = [ 'i-0155bb8e6d7dddf46', 'i-03ae34997d9442d74' ]
 
-def lambda_handler(event, context):
+def lambda_handler( event, context ):
 
-  ec2 = boto3.client('ec2', region_name=region)
-  ec2.stop_instances(InstanceIds=instances)
+  ec2 = boto3.client( 'ec2', region_name = region )
 
-  print('Stopped instances: ' + ''.join(instances))
+  if 'start' == action:
+    ec2.start_instances( InstanceIds = instances )
+  elif 'stop' == action:
+    ec2.stop_instances( InstanceIds = instances )
+
+  print( ( 'Started' if 'start' == action else 'Stopped' ) + ' instances: ' + ', '.join( instances ) )
 
   return {
-    "event": "stop",
+    "action":    action,
     "instances": instances
   }
