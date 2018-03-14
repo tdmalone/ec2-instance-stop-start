@@ -9,12 +9,16 @@ https://aws.amazon.com/premiumsupport/knowledge-center/start-stop-lambda-cloudwa
 import boto3
 
 region = 'ap-southeast-2'
-instances = [ 'i-0155bb8e6d7dddf46' ]
+instances = ['i-0155bb8e6d7dddf46']
 
-def lambda_handler( event, context ):
+def lambda_handler(event, context):
 
-  ec2 = boto3.client( 'ec2', region_name=region )
-  ec2.stop_instances( InstanceIds=instances )
+  ec2 = boto3.client('ec2', region_name=region)
+  ec2.stop_instances(InstanceIds=instances)
 
-  print 'Stopped instances: ' + str( instances )
-  return { "event": "stop", "instances": instances }
+  print('Stopped instances: ' + ''.join(instances))
+
+  return {
+    "event": "stop",
+    "instances": instances
+  }
