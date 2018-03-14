@@ -25,7 +25,8 @@ env:
     # PYPI_PASSWORD
     - secure: ih4E1o4LqD7H1nO6WS7KLSffr8LSidTAm5PWlS4xCGP6vj00QmNLZPimsyn6bsGZBwcOwi1i+zkIR9pnOOw0PUUAxYIwL90lpNCcQBA32v2qSHTYg8M+clQjBCyRDMFhHIX1RQjauyWwjKhtIGOA/9YiuUbFzo4F9iDhSKExvXTQYlzOFaPoLC7ldNj1xCLldmhrdvJ7M4Ud0WVnsLmopfYS5NtKkncGD96NgOJJf5Thh8ekOIUUkzgitO5hVoGEZN+2fQ+I5NpTYoIu6VQ2QLqkUPz03iHpuYlvCU8WXhzMC2rlryt2mtxytTtFx70AcvXGUbZinoC7G4AOWUppet0Y5lnlJDt+o7GG5AfKT2gFhbaBPK4cT3sOLiGaT8vhokgMFyU7ULovmhd1yW+reypLTq73qN2M4QYXuR4ii9jRTzJ8ugjJnafB4fzYi6+vGJCwK3XKIAwXDXl1JPN+dCjzCTcQ5m/Zt7TKrODnZhOEr1qdHgKhvDrhly6Vq1I5JRta0NlV5yUvz84WjmySqGID08sIjeGHEasCrzotez+XtEXWbO87IuFjWkWlqMt50ecP+9gHDZSTaDAV6ulpjicxunoXHFB9otu9C2TjUwCjElG8q+XEv3DaOYSorrjS8Z+8PL24BtP46bIoWRP+dumT2JExMViJCYt8S6iaf+w=
 
-install: true
+install:
+  - curl --output ~/.pylint.rc https://raw.githubusercontent.com/tdmalone/dotfiles/master/.pylintrc
 
 script:
   - make lint

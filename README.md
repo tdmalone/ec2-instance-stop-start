@@ -13,7 +13,7 @@ Based initially on [this AWS example](https://aws.amazon.com/premiumsupport/know
 5. Click _Add target_ over on the right, and select your Lambda function (and version or alias, if applicable - I usually set up at least a _dev_ and _prod_ alias, with deployment handled in [.travis.yml](.travis.yml), but if you've copied and pasted the function you probably don't need to worry about maintaining separate versions!).
 6. Expand _Configure input_ and select the _Constant (JSON text)_ option. Enter the following text, using either 'start' or 'stop' for the action, and of course specifying the region and the instance IDs you wish to operate on:
 
-    { "action": "start", "region": "ap-southeast-2", instances": [ "i-0155bb8e6d7dddf46", "i-0155bb8e6d7dddf46" ] }
+       { "action": "start", "region": "ap-southeast-2", "instances": [ "i-0155bb8e6d7dddf46", "i-0155bb8e6d7dddf46" ] }
 
 7. Finally, click _Configure details_, fill out the requested information, and click _Create rule_! Repeat from step 3 above to create additional schedules for other instances, regions, or start/stop actions.
 
@@ -21,7 +21,7 @@ Based initially on [this AWS example](https://aws.amazon.com/premiumsupport/know
 
 Clone (or fork and clone) the repository to your machine.
 
-If you have Docker running, you can test the function locally by running `make test`.
+If you have Docker running, you can test the function locally by running `make test`, although you may want to replace the instance ID in the [Makefile](Makefile) with an instance you control 🙂. You'll also need to have `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` exported as environment variables to pass into the Docker container.
 
 ## License
 
