@@ -1,0 +1,61 @@
+language: python
+services: docker
+python: 3.6
+
+env:
+  global:
+
+    - AWS_ACCESS_KEY_ID=...
+    - AWS_DEFAULT_REGION=ap-southeast-2
+    - LAMBDA_NAME=ec2InstanceStopStart
+    - LAMBDA_ALIAS=prod
+
+    # AWS_SECRET_ACCESS_KEY
+    - secure: ...
+
+install: true
+script: make test
+
+# Copy the Lambda function as a workaround for a PyPi deployment.
+before_deploy: mkdir ec2-instance-stop-start && cp lambda_function.py ec2-instance-stop-start/
+
+deploy:
+
+  - provider: lambda
+    publish: true
+    function_name: $LAMBDA_NAME
+    region: $AWS_DEFAULT_REGION
+    role: arn:aws:iam::873114526714:role/genericLambdaRole
+    description: Helps manage start and stop schedules to save costs on EC2 instances.
+    runtime: python3.6
+    timeout: 15
+    module_name: lambda_function
+    handler_name: lambda_handler
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key:
+      secure: ...
+    on:
+      branch: master
+
+  - provider: pypi
+    username: tdmalone
+    password:
+      secure: ...
+    skip_cleanup: true
+    on:
+      branch: master
+      tags: true
+
+after_deploy:
+
+  # Set a Lambda alias to the most recently deployed version.
+  - pip install awscli --upgrade
+  - export MOST_RECENT=$(aws lambda list-versions-by-function --function "${LAMBDA_NAME}" --max-items 10000 | node -e "let stdin=''; process.stdin.on('data',(chunk)=>{stdin+=chunk}).on('end',()=>{console.log(JSON.parse(stdin).Versions.pop().Version)})")
+  - aws lambda update-alias --function-name "${LAMBDA_NAME}" --name "${LAMBDA_ALIAS}" --function-version "${MOST_RECENT}"
+
+notifications:
+  email: false
+  slack:
+    on_start: always
+    rooms:
+      - secure: ...
