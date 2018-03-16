@@ -1,0 +1,107 @@
+language: python
+services: docker
+python: 3.6
+
+env:
+  global:
+
+    - AWS_ACCESS_KEY_ID=AKIAJPO2TFT22CHGMUXA
+    - AWS_DEFAULT_REGION=ap-southeast-2
+
+    - LAMBDA_NAME=ec2InstanceStopStart
+    - LAMBDA_DESCRIPTION="Helps manage start and stop schedules to save costs on EC2 instances."
+    - LAMBDA_TIMEOUT=15
+    - LAMBDA_ROLE=arn:aws:iam::873114526714:role/genericLambdaRole
+    - LAMBDA_ALIAS=prod
+
+    - LAMBDA_RUNTIME=python3.6
+    - LAMBDA_MODULE=lambda_function
+    - LAMBDA_HANDLER=lambda_handler
+    - PYPI_USERNAME=tdmalone
+
+    # AWS_SECRET_ACCESS_KEY
+    - secure: xK4aiaQluICJY/mPC8GCkO2Dp+Mp4Z1VNvHLFNJsiKTPQ6dTJNWSamGQrbGH7O9mRXce7XEgmRBW8m+ZjlldZ5CMRny9sgVVwgvhyFzuzj3Z/nxRMFYaMFcfpSs3kWW6sYDHIo3j6N7BkkO28j4hFu5HqSL2HQ4ENtBq5iyyC4bULzAqGaUL7w0A52UUICv8mnrR5ODz+H138PY1Fjhq1US3W1ruv5mFj+JEupeU8FJOGNRISVCi9UiHtUFFAsNEGwVqhIYeIOmalFshi431f2sx1eKKZRVs2lE2Qn285G9utAdb9G0HAT96KaVgekM72MeB72MCUoxH/hu0MPwAYRmoedosSPGJhLWCspkK2NH/zmAB82AJ5lcNJmaU28jVNekQjXTGZR3Am7QdwaPw9Ovjvg/Ka4kI2cKsTOk8EHHL9SAgsXcSx8b4etVsvopdk9p3HR4C1u2zjZwZeY/fzKjRNpzzrZBsEYmzLhcy4EM0xvFv1fh4sX3R3r7mm1y2G6a3C8nvVr67u0Q6+mPuYs/Yt60i2rTqjNc/QkeQLAllGK5ccoV5ZM/h/cY2NQ4bMG5JPQL2rP0fMMVTcx5b1e/ieMqJqKeZUrDouqybLYlWtBdxnq94ytLDWiNEFjWAsmrcSeCV6b0TtR5w8z0GCHPUaKxmS3KHQEa0T17ZnGA=
+
+    # PYPI_PASSWORD
+    - secure: ih4E1o4LqD7H1nO6WS7KLSffr8LSidTAm5PWlS4xCGP6vj00QmNLZPimsyn6bsGZBwcOwi1i+zkIR9pnOOw0PUUAxYIwL90lpNCcQBA32v2qSHTYg8M+clQjBCyRDMFhHIX1RQjauyWwjKhtIGOA/9YiuUbFzo4F9iDhSKExvXTQYlzOFaPoLC7ldNj1xCLldmhrdvJ7M4Ud0WVnsLmopfYS5NtKkncGD96NgOJJf5Thh8ekOIUUkzgitO5hVoGEZN+2fQ+I5NpTYoIu6VQ2QLqkUPz03iHpuYlvCU8WXhzMC2rlryt2mtxytTtFx70AcvXGUbZinoC7G4AOWUppet0Y5lnlJDt+o7GG5AfKT2gFhbaBPK4cT3sOLiGaT8vhokgMFyU7ULovmhd1yW+reypLTq73qN2M4QYXuR4ii9jRTzJ8ugjJnafB4fzYi6+vGJCwK3XKIAwXDXl1JPN+dCjzCTcQ5m/Zt7TKrODnZhOEr1qdHgKhvDrhly6Vq1I5JRta0NlV5yUvz84WjmySqGID08sIjeGHEasCrzotez+XtEXWbO87IuFjWkWlqMt50ecP+9gHDZSTaDAV6ulpjicxunoXHFB9otu9C2TjUwCjElG8q+XEv3DaOYSorrjS8Z+8PL24BtP46bIoWRP+dumT2JExMViJCYt8S6iaf+w=
+
+install:
+  - pip install --requirement requirements.txt
+  - pip install pylint
+  - curl --output ~/.pylint.rc https://raw.githubusercontent.com/tdmalone/dotfiles/master/.pylintrc
+
+script:
+  - make lint
+  - make test
+
+# Copy the Lambda function as a workaround for a PyPi deployment.
+before_deploy:
+  - mkdir "${LAMBDA_NAME}"
+  - cp lambda_function.py "${LAMBDA_NAME}"/
+
+deploy:
+
+  # Deploy to $LATEST on dev branch. (i.e. don't publish a new version).
+
+  - on:
+      branch: dev
+    publish: false
+
+    provider: lambda
+    function_name: $LAMBDA_NAME
+    region: $AWS_DEFAULT_REGION
+    role: $LAMBDA_ROLE
+    description: $LAMBDA_DESCRIPTION
+    runtime: $LAMBDA_RUNTIME
+    timeout: $LAMBDA_TIMEOUT
+    module_name: $LAMBDA_MODULE
+    handler_name: $LAMBDA_HANDLER
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    skip_cleanup: true
+
+  # Deploy and publish a new version on master branch.
+
+  - on:
+      branch: master
+    publish: true
+
+    provider: lambda
+    function_name: $LAMBDA_NAME
+    region: $AWS_DEFAULT_REGION
+    role: $LAMBDA_ROLE
+    description: $LAMBDA_DESCRIPTION
+    runtime: $LAMBDA_RUNTIME
+    timeout: $LAMBDA_TIMEOUT
+    module_name: $LAMBDA_MODULE
+    handler_name: $LAMBDA_HANDLER
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    skip_cleanup: true
+
+  # Deploy to pypi on master with a new tag.
+
+  - on:
+      branch: master
+      tags: true
+
+    provider: pypi
+    username: $PYPI_USERNAME
+    password: $PYPI_PASSWORD
+    skip_cleanup: true
+
+after_deploy:
+
+  # Set a Lambda alias to the most recently deployed version.
+  - if [ "master" = "${TRAVIS_BRANCH}" ]; then
+      pip install awscli --upgrade --user;
+      export MOST_RECENT=$(aws lambda list-versions-by-function --function "${LAMBDA_NAME}" --max-items 10000 | node -e "let stdin=''; process.stdin.on('data',(chunk)=>{stdin+=chunk}).on('end',()=>{console.log(JSON.parse(stdin).Versions.pop().Version)})");
+      aws lambda update-alias --function-name "${LAMBDA_NAME}" --name "${LAMBDA_ALIAS}" --function-version "${MOST_RECENT}";
+    fi;
+
+notifications:
+  email: false
+  slack:
+    on_start: always
+    rooms:
+      - secure: o6SZV2kAJFFHj6eRP1twoKUxSWD9HdEAbnTzrR70TiFxfCe/ofBBvQnkRijjnf+tcvDSKWt5UmTPl8cFaJEncH4nzEIg5hIO+4yZ8zU53zNSM2TdwKs5/eSDAtd713aBHXF3uxnNII/mwfj9rvqq151BlL5+p1xodK6jqHJOt8H/xAAJChBfLqfdmWHchb9HDoLMJaVaUp6Xe9GyGgO2Iq6bKM8MI/NsDmLQ3K/28/4ILh0hxYRw8WKTMf9LJrRQtoAB8OkGkRpglAnHeZIsiK+LXPpMUOHW+/KYJJGVk76j1TA6Df+L06F2J8bGRwSGJU8VkuasDsgeBM1BhcvAzTT4QkGmOPLHZXIySq1Jtk+J0kd9YB+vK1INeJiYvNa9/6yp6a6r3oYTtvWWB2MBKPDkSpuwelbAhbOYrzs/SMbjr59dORYIIJCR3C6BLUZGnIF3eQhpX8N5vy8LT7AW8uA5xXT31ctNj+UUPx06XhvOZkewi5524I3N3/Tw/KeysfGzOQ/TfIJE7i5NoUrga8OWChNd7bqnhmhqp6XJK/qMsA/+/XOD9N3vOpeSgduiRsNPhO2UfitBS3adHE2Wx71biEWHlBHwUucTl4tvvwAmiT1PJZJE9c2rp5492G6HEcKr4NSaW89C7ppzTbuh1RKlW0uKe5y4IRzVAsOF+uM=

@@ -1,0 +1,6 @@
+ec2-instance-stop-start/
+build/
+dist/
+MANIFEST
+.~*
+*.pyc
