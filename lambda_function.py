@@ -15,15 +15,18 @@ def lambda_handler( event, context ):
     if not event['source-ip'] in event['authorised-ips']:
       raise Exception( 'Unauthorised.' )
 
-  if 'start' == event["action"]:
-    ec2.start_instances( InstanceIds = event["instances"] )
-  elif 'stop' == event["action"]:
-    ec2.stop_instances( InstanceIds = event["instances"] )
+  ec2 = boto3.client( 'ec2', region_name = event['region'] )
 
-  print( event["action"] )
-  print( 'instances: ' + ', '.join( event["instances"] ) )
+  # Start or stop the requested instance(s).
+  if 'start' == event['action']:
+    ec2.start_instances( InstanceIds = event['instances'] )
+  elif 'stop' == event['action']:
+    ec2.stop_instances( InstanceIds = event['instances'] )
+
+  print( event['action'] )
+  print( 'instances: ' + ', '.join( event['instances'] ) )
 
   return {
-    "action":    event["action"],
-    "instances": event["instances"]
+    'action':    event['action'],
+    'instances': event['instances']
   }
