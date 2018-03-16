@@ -10,7 +10,10 @@ import boto3, json
 
 def lambda_handler( event, context ):
 
-  ec2 = boto3.client( 'ec2', region_name = event["region"] )
+  # If IP addresses have been provided, check if the source IP is a-ok.
+  if 'authorised-ips' in event:
+    if not event['source-ip'] in event['authorised-ips']:
+      raise Exception( 'Unauthorised.' )
 
   if 'start' == event["action"]:
     ec2.start_instances( InstanceIds = event["instances"] )
