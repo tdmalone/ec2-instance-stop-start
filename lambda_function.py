@@ -6,9 +6,13 @@ Initially based on this:
 https://aws.amazon.com/premiumsupport/knowledge-center/start-stop-lambda-cloudwatch/
 """
 
-import boto3, json, os
+import boto3, os
 
 def lambda_handler( event, context ):
+  """Handler function called directly by Lambda."""
+
+  # Disable pylint check for unused args, as Lambda will always try to pass through `context`.
+  #pylint: disable=unused-argument
 
   # If IP addresses have been provided in the event, check if the source IP is a-ok.
   if 'authorised-ips' in event:
