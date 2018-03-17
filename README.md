@@ -71,6 +71,8 @@ Clone (or fork and clone) the repository to your machine.
 
 If you have Docker running, you can test the function locally by running `make test`, although you may want to replace the instance ID in the [Makefile](Makefile) with an instance you control 🙂. You'll also need to have `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` exported as environment variables to pass into the Docker container.
 
+Note that unit tests are not yet written.
+
 ## License
 
 [MIT](LICENSE).
