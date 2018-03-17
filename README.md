@@ -31,7 +31,7 @@ Repeat these instructions to create additional schedules for other instances, re
 1. Find your Lambda function (leave 'Use Lambda Proxy integration' **deselected**), and click _Save_.
 1. Now under your method settings, click _Integration Request_, then scrolling down to and expand _Body Mapping Templates_.
 1. Click _Add mapping template_, enter 'application/json', and click the check mark.
-1. Scroll down, and for _Generate template_, select _Empty_. Replace the empty curly braces with the following, using either 'start' or 'stop' for the action, and of course changing the region and instance IDs you wish to operate on:
+1. Scroll down, and for _Generate template_, select _Empty_. Replace the empty curly braces with the following, using either 'start' or 'stop' for the action, and of course changing the region and instance IDs you wish to operate on, and the IP addresses authorised to access the endpoint (leave the `authorised-ips` key out entirely if you don't want to restrict access):
 
        {
           "action": "start",
@@ -39,7 +39,12 @@ Repeat these instructions to create additional schedules for other instances, re
           "instances": [
             "i-0155bb8e6d7dddf46",
             "i-0155bb8e6d7dddf46"
-          ]
+          ],
+          "authorised-ips": [
+            "123.45.67.89",
+            "98.76.54.32"
+          ],
+          "source-ip": "$context.identity.sourceIp"
         }
 
 1. Save it, click _Stages_ over on the left, and _Create_ a stage (such as 'v1') if you don't already have one.
