@@ -28,7 +28,7 @@ env:
 install:
   - pip install --requirement requirements.txt
   - pip install pylint
-  - curl --output ~/.pylint.rc https://raw.githubusercontent.com/tdmalone/dotfiles/master/.pylintrc
+  - curl --output ~/.pylintrc https://raw.githubusercontent.com/tdmalone/dotfiles/master/.pylintrc
 
 script:
   - make lint
