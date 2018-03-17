@@ -16,7 +16,10 @@ def lambda_handler( event, context ):
       raise Exception( 'Unauthorised.' )
 
   # If IP addresses have been provided in an environment variable, check if the source IP is a-ok.
-  # TODO
+  if 'AUTHORISED_IPS' in os.environ:
+    authorised_ips = os.environ['AUTHORISED_IPS'].split( ',' )
+    if 'source-ip' in event and not event['source-ip'] in authorised_ips:
+      raise Exception( 'Unauthorised.' )
 
   ec2 = boto3.client( 'ec2', region_name = event['region'] )
 

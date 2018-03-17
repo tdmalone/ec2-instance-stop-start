@@ -40,10 +40,6 @@ Repeat these instructions to create additional schedules for other instances, re
             "i-0155bb8e6d7dddf46",
             "i-0155bb8e6d7dddf46"
           ],
-          "authorised-ips": [
-            "123.45.67.89",
-            "98.76.54.32"
-          ],
           "source-ip": "$context.identity.sourceIp"
         }
 
@@ -52,7 +48,22 @@ Repeat these instructions to create additional schedules for other instances, re
 
 Repeat these steps to create additional endpoints to service different actions, regions or instances. You could also set your API up to take and map dynamic input directly from the request (via the path, query string or request headers).
 
-Note: unless you want anyone who finds your API to be able to start and stop your servers, you'll also want to think about securing it - such as with [API keys](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans-with-console.html) or [IAM policies](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html).
+#### Securing your endpoint
+
+Unless you want anyone who finds your API to be able to start and stop your servers, you'll want to think about securing it - such as with [API keys](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans-with-console.html) or [IAM policies](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html).
+
+There's also a built-in way to this function to restrict access by IP address. You shouldn't rely on this as your only defence, but it's worthwhile doing if you can.
+
+The mapping template we set up earlier already configures API Gateway to send through the source IP address, so now you just need to add your authorised IP(s). You can do this by adding the `AUTHORISED_IPS` environment variable to your Lambda function, setting it to a comma delimited list of IPs such as eg. `123.45.67.89,98.76.54.32`.
+
+Alternatively, add an `authorised-ips` key directly to the mapping template we added above:
+
+    "authorised-ips": [
+      "123.45.67.89",
+      "98.76.54.32"
+    ]
+
+Which of these methods you choose depends on whether you want to configure the IPs once for each invocation of your function... or once for every endpoint that you set up.
 
 ## Development
 
