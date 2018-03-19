@@ -1,3 +1,4 @@
+.pytest_cache/
 ec2-instance-stop-start/
 build/
 dist/
